@@ -1,6 +1,6 @@
-from typing import Any
+from typing import Any, List
 
-from lox import expressions
+from lox import expressions, statements
 from lox.tokens import TokenType, Token
 
 
@@ -16,9 +16,16 @@ class LoxRuntimeError(RuntimeError):
         return super().__repr__()
 
 
-class Interpreter(expressions.ExprVisitor):
+class Interpreter(expressions.ExprVisitor, statements.StmtVisitor):
     def evaluate(self, expr: expressions.Expr) -> Any:
         return expr.accept(self)
+
+    def execute(self, stmt: statements.Stmt) -> None:
+        stmt.accept(self)
+
+    def interpret(self, stmts: List[statements.Stmt]) -> None:
+        for stmt in stmts:
+            self.execute(stmt)
 
     @staticmethod
     def stringify(obj: Any) -> str:
@@ -33,9 +40,17 @@ class Interpreter(expressions.ExprVisitor):
 
         return str(obj)
 
-    def interpret(self, expr: expressions.Expr):
-        value = self.evaluate(expr)
-        print(self.stringify(value))
+    @staticmethod
+    def is_truthy(obj: Any) -> bool:
+        return bool(obj)
+
+    @staticmethod
+    def is_equal(a: Any, b: Any) -> bool:
+        return a == b
+
+    @staticmethod
+    def is_number(obj: Any) -> bool:
+        return isinstance(obj, (int, float))
 
     def check_number_operand(self, operator: Token, operand: Any) -> None:
         if self.is_number(operand):
@@ -49,17 +64,16 @@ class Interpreter(expressions.ExprVisitor):
 
         raise LoxRuntimeError(operator, 'Operands must be numeric objects.')
 
-    @staticmethod
-    def is_truthy(obj: Any) -> bool:
-        return bool(obj)
+    def visit_expression_stmt(self, stmt: statements.Expression) -> None:
+        self.evaluate(stmt.expression)
 
-    @staticmethod
-    def is_equal(a: Any, b: Any) -> bool:
-        return a == b
+        return None
 
-    @staticmethod
-    def is_number(obj: Any) -> bool:
-        return isinstance(obj, (int, float))
+    def visit_print_stmt(self, stmt: statements.Print) -> None:
+        value = self.evaluate(stmt.expression)
+        print(self.stringify(value))
+
+        return None
 
     def visit_assign_expr(self, expr: expressions.Expr) -> Any:
         pass
