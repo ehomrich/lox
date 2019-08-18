@@ -1,7 +1,6 @@
 from pathlib import Path
 from sys import version_info, platform
 
-from lox.ast_printer import AstPrinter
 from lox.interpreter import Interpreter, LoxRuntimeError
 from lox.parser import Parser, ParseError
 from lox.scanner import Scanner

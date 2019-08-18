@@ -11,4 +11,5 @@ def main(args) -> None:
     else:
         Lox.prompt()
 
+
 main(argv[1:])

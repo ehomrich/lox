@@ -20,7 +20,8 @@ class Interpreter(expressions.ExprVisitor):
     def evaluate(self, expr: expressions.Expr) -> Any:
         return expr.accept(self)
 
-    def stringify(self, obj: Any) -> str:
+    @staticmethod
+    def stringify(obj: Any) -> str:
         if isinstance(obj, str):
             return obj
 
