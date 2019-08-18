@@ -2,7 +2,8 @@ from pathlib import Path
 from sys import version_info, platform
 
 from lox.ast_printer import AstPrinter
-from lox.parser import Parser
+from lox.interpreter import Interpreter, LoxRuntimeError
+from lox.parser import Parser, ParseError
 from lox.scanner import Scanner
 from lox.tokens import Token, TokenType
 
@@ -34,7 +35,9 @@ COMMANDS = {
 
 
 class Lox:
+    interpreter = Interpreter()
     had_error = False
+    had_runtime_error = False
 
     @staticmethod
     def repl_intro() -> None:
@@ -67,16 +70,24 @@ class Lox:
             Lox.report(token.line, f" at '{token.lexeme}'", message)
 
     @staticmethod
+    def runtime_error(error: LoxRuntimeError):
+        print(f'{error}\n[line {error.token.line}]')
+
+        Lox.had_runtime_error = True
+
+    @staticmethod
     def run(source: str) -> None:
-        scanner = Scanner(source)
-        tokens = scanner.scan_tokens()
-        parser = Parser(tokens)
-        expr = parser.parse()
+        try:
+            scanner = Scanner(source)
+            tokens = scanner.scan_tokens()
+            parser = Parser(tokens)
+            expr = parser.parse()
 
-        if Lox.had_error:
-            return
-
-        print(AstPrinter().print(expr))
+            Lox.interpreter.interpret(expr)
+        except ParseError as pe:
+            Lox.error(pe.token, str(pe))
+        except LoxRuntimeError as lre:
+            Lox.runtime_error(lre)
 
     @staticmethod
     def run_file(filename) -> None:
@@ -86,6 +97,8 @@ class Lox:
 
         if Lox.had_error:
             exit(65)
+        elif Lox.had_runtime_error:
+            exit(70)
 
     @staticmethod
     def prompt() -> None:
@@ -103,6 +116,7 @@ class Lox:
                 else:
                     Lox.run(expr)
                     Lox.had_error = False
+                    Lox.had_runtime_error = False
             except KeyboardInterrupt as ki:
                 print(f'\n{ki.__class__.__name__}')
             except EOFError:
