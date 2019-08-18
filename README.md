@@ -15,9 +15,10 @@ This implementation is still ongoing, and there is a desire to extend the projec
 
 At the moment, the implementation follows almost every step and decision in the book, however:
 
-- Not all challenges have been implemented yet
-- I'll be using `self` instead of `this` (I'm a pythonist, just in case you are wondering)
-- I will try to handle both `int` and `float` numbers instead of considering everything as `double` (yes, I know this is a tough task). If everything goes wrong or I get into trouble because of this decision, I will follow the book's decision to only use `double`. It should not be difficult to make the appropriate changes in the codebase (I think).
+- Not all challenges have been implemented yet.
+- I'll be using `self` instead of `this` and `null` instead of `nil`.
+- Comments start with `#` instead of `/`.
+- I will try to handle both `int` and `float` numbers instead of considering everything as `double`.
 - The `TokenType` enum has many more tokens and keywords than those described by the book. I recorded all the ideas that came to mind while reading the language planning section.
 
 ## Requirements
