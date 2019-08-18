@@ -70,7 +70,7 @@ class Lox:
             Lox.report(token.line, f" at '{token.lexeme}'", message)
 
     @staticmethod
-    def runtime_error(error: LoxRuntimeError):
+    def runtime_error(error: LoxRuntimeError) -> None:
         print(f'{error}\n[line {error.token.line}]')
 
         Lox.had_runtime_error = True

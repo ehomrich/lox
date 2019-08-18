@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any
 
 from lox import expressions
 from lox.tokens import TokenType, Token
@@ -59,15 +59,6 @@ class Interpreter(expressions.ExprVisitor):
     @staticmethod
     def is_number(obj: Any) -> bool:
         return isinstance(obj, (int, float))
-
-    @staticmethod
-    def coerce_number(obj: Any) -> Union[int, float]:
-        value = float(obj)
-
-        if value.is_integer():
-            return int(value)
-
-        return value
 
     def visit_assign_expr(self, expr: expressions.Expr) -> Any:
         pass
