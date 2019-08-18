@@ -5,7 +5,9 @@ from lox.tokens import Token, TokenType
 
 
 class ParseError(RuntimeError):
-    pass
+    def __init__(self, token: Token, message: str) -> None:
+        super().__init__(message)
+        self.token = token
 
 
 class Parser:
@@ -50,10 +52,7 @@ class Parser:
 
     @staticmethod
     def error(token: Token, message: str) -> ParseError:
-        from lox import Lox
-        Lox.error(token, message)
-
-        return ParseError()
+        return ParseError(token, message)
 
     def consume(self, typ: TokenType, message: str) -> Token:
         if self.check(typ):
@@ -70,7 +69,7 @@ class Parser:
     def equality(self) -> expressions.Expr:
         expr = self.comparison()
 
-        while self.match(TokenType.BANG, TokenType.BANG_EQUAL):
+        while self.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL):
             operator = self.previous()
             right = self.comparison()
             expr = expressions.Binary(expr, operator, right)
@@ -115,7 +114,7 @@ class Parser:
         raise self.error(self.peek(), 'Expect expression.')
 
     def unary(self) -> expressions.Expr:
-        if self.match(TokenType.MINUS, TokenType.PLUS):
+        if self.match(TokenType.BANG, TokenType.MINUS):
             operator = self.previous()
             right = self.unary()
 
@@ -168,7 +167,4 @@ class Parser:
             self.advance()
 
     def parse(self) -> Optional[expressions.Expr]:
-        try:
-            return self.expression()
-        except ParseError:
-            return None
+        return self.expression()
