@@ -137,7 +137,7 @@ class Scanner:
         elif char.isalpha():
             self.identifier()
         else:
-            raise SyntaxError(f'Unexpected character "{char}" at'
+            raise SyntaxError(f'Unexpected character "{char}" at '
                               f'line {self.line}')
 
     def scan_tokens(self) -> List[Token]:
