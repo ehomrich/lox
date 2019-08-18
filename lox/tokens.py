@@ -122,7 +122,7 @@ _keywords: Tuple[str] = (
 KEYWORDS: Dict[str, TokenType] = {key: TokenType(key) for key in _keywords}
 
 SINGLE_CHARS: Tuple[str] = (
-    '(', ')', '{', '}', ',', '.', '-', '+', ';', '*',
+    '(', ')', '{', '}', ',', '.', '-', '+', ';', '*', '/',
 )
 
 ONE_OR_MORE_CHARS: Tuple[str] = ('!', '!=', '=', '==', '>', '>=', '<', '<=')
