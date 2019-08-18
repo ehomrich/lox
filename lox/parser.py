@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from lox import expressions
+from lox import expressions, statements
 from lox.tokens import Token, TokenType
 
 
@@ -62,6 +62,24 @@ class Parser:
 
     def expression(self) -> expressions.Expr:
         return self.equality()
+
+    def statement(self) -> statements.Stmt:
+        if self.match(TokenType.PRINT):
+            return self.print_statement()
+
+        return self.expression_statement()
+
+    def print_statement(self) -> statements.Stmt:
+        value = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
+
+        return statements.Print(value)
+
+    def expression_statement(self) -> statements.Stmt:
+        expr = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
+
+        return statements.Expression(expr)
 
     def assignment(self) -> expressions.Expr:
         pass
@@ -166,5 +184,10 @@ class Parser:
 
             self.advance()
 
-    def parse(self) -> Optional[expressions.Expr]:
-        return self.expression()
+    def parse(self) -> List[statements.Stmt]:
+        stmts: List[statements.Stmt] = []
+
+        while not self.is_at_end():
+            stmts.append(self.statement())
+
+        return stmts
