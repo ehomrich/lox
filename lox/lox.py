@@ -80,9 +80,9 @@ class Lox:
             scanner = Scanner(source)
             tokens = scanner.scan_tokens()
             parser = Parser(tokens)
-            expr = parser.parse()
+            stmts = parser.parse()
 
-            Lox.interpreter.interpret(expr)
+            Lox.interpreter.interpret(stmts)
         except ParseError as pe:
             Lox.error(pe.token, str(pe))
         except LoxRuntimeError as lre:
