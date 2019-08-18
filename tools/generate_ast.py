@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import Tuple, TextIO, Dict, Iterable
+from typing import Dict, Iterable, Tuple, TextIO
 
 arg_parser = ArgumentParser(usage='generate_ast.py <output directory>')
 arg_parser.add_argument('output',
@@ -9,14 +9,19 @@ arg_parser.add_argument('output',
                         )
 args = arg_parser.parse_args()
 
-DEFAULT_IMPORTS: Tuple[str] = (
-    'from abc import ABC, abstractmethod',
+ASTDict = Dict[str, Tuple[str]]
+
+DEFAULT_IMPORTS: Tuple[str] = ('from abc import ABC, abstractmethod',)
+
+EXPRESSIONS_IMPORTS: Tuple[str] = DEFAULT_IMPORTS + (
     'from typing import Any, List',
     'from lox.scanner import Scanner',
     'from lox.tokens import Token',
 )
 
-TYPES: Dict[str, str] = {
+STATEMENTS_IMPORTS: Tuple[str] = DEFAULT_IMPORTS + ('from lox.expressions import Expr',)
+
+EXPRESSIONS: ASTDict = {
     'Assign': ('name: Token', 'value: Expr'),
     'Binary': ('left: Expr', 'operator: Token', 'right: Expr'),
     'Call': ('callee: Expr', 'paren: Token', 'arguments: List[Expr]'),
@@ -31,16 +36,21 @@ TYPES: Dict[str, str] = {
     'Variable': ('name: Token',)
 }
 
+STATEMENTS: ASTDict = {
+    'Expression': ('expression: Expr',),
+    'Print': ('expression: Expr',),
+}
+
 INDENTATION = '    '
 
 
-def define_ast(path: Path, base_name: str, types: Dict[str, str]):
+def define_ast(path: Path, base_name: str, types: ASTDict, imports: Tuple[str]) -> None:
     name = base_name.title()
     visitor = f'{base_name}Visitor'
 
     with path.open(mode='w', encoding='utf-8') as file:
-        define_imports(file)
-        define_visitor(file, base_name, TYPES.keys())
+        define_imports(file, imports)
+        define_visitor(file, base_name, types.keys())
         file.write('\n\n')
         file.write(f'class {name}(ABC):')
         file.write('\n')
@@ -57,11 +67,11 @@ def define_ast(path: Path, base_name: str, types: Dict[str, str]):
             file.write('\n')
 
 
-def define_imports(file: TextIO):
-    file.write('\n'.join(DEFAULT_IMPORTS))
+def define_imports(file: TextIO, lines: Tuple[str]) -> None:
+    file.write('\n'.join(lines))
 
 
-def define_type(file: TextIO, base_name: str, class_name: str, fields: str):
+def define_type(file: TextIO, base_name: str, class_name: str, fields: Tuple[str]) -> None:
     file.write(f'class {class_name}({base_name}):')
     file.write('\n')
     file.write(f'{INDENTATION}')
@@ -82,7 +92,7 @@ def define_type(file: TextIO, base_name: str, class_name: str, fields: str):
     file.write('\n')
 
 
-def define_visitor(file: TextIO, base_name: str, types: Iterable[str]):
+def define_visitor(file: TextIO, base_name: str, types: Iterable[str]) -> None:
     name = base_name.lower()
     visitor = f'{base_name}Visitor'
 
@@ -100,14 +110,14 @@ def define_visitor(file: TextIO, base_name: str, types: Iterable[str]):
         file.write('\n')
 
 
-
 def main() -> None:
     path = Path(args.output).resolve()
 
     if not path.is_dir():
         arg_parser.error('output must be a valid directory')
 
-    define_ast(path / 'expressions.py', 'Expr', TYPES)
+    define_ast(path / 'expressions.py', 'Expr', EXPRESSIONS, EXPRESSIONS_IMPORTS)
+    define_ast(path / 'statements.py', 'Stmt', STATEMENTS, STATEMENTS_IMPORTS)
 
 
 if __name__ == '__main__':
