@@ -1,12 +1,52 @@
 from typing import Any, Union
 
 from lox import expressions
-from lox.tokens import TokenType
+from lox.tokens import TokenType, Token
+
+
+class LoxRuntimeError(RuntimeError):
+    def __init__(self, token: Token, message: str) -> None:
+        super().__init__(message)
+        self.token = token
+
+    def __str__(self) -> str:
+        return super().__str__()
+
+    def __repr__(self) -> str:
+        return super().__repr__()
 
 
 class Interpreter(expressions.ExprVisitor):
     def evaluate(self, expr: expressions.Expr) -> Any:
         return expr.accept(self)
+
+    def stringify(self, obj: Any) -> str:
+        if isinstance(obj, str):
+            return obj
+
+        if obj is None:
+            return 'null'
+
+        if isinstance(obj, bool):
+            return str(obj).lower()
+
+        return str(obj)
+
+    def interpret(self, expr: expressions.Expr):
+        value = self.evaluate(expr)
+        print(self.stringify(value))
+
+    def check_number_operand(self, operator: Token, operand: Any) -> None:
+        if self.is_number(operand):
+            return
+
+        raise LoxRuntimeError(operator, 'Operand must be a numeric object.')
+
+    def check_number_operands(self, operator: Token, left: Any, right: Any) -> None:
+        if self.is_number(left) and self.is_number(right):
+            return
+
+        raise LoxRuntimeError(operator, 'Operands must be numeric objects.')
 
     @staticmethod
     def is_truthy(obj: Any) -> bool:
@@ -43,24 +83,33 @@ class Interpreter(expressions.ExprVisitor):
         elif token_type == TokenType.EQUAL_EQUAL:
             return self.is_equal(left, right)
         elif token_type == TokenType.GREATER:
-            return self.coerce_number(left) > self.coerce_number(right)
+            self.check_number_operands(expr.operator, left, right)
+            return left > right
         elif token_type == TokenType.GREATER_EQUAL:
-            return self.coerce_number(left) >= self.coerce_number(right)
+            self.check_number_operands(expr.operator, left, right)
+            return left >= right
         elif token_type == TokenType.LESS:
-            return self.coerce_number(left) < self.coerce_number(right)
+            self.check_number_operands(expr.operator, left, right)
+            return left < right
         elif token_type == TokenType.LESS_EQUAL:
-            return self.coerce_number(left) <= self.coerce_number(right)
+            self.check_number_operands(expr.operator, left, right)
+            return left <= right
         elif token_type == TokenType.MINUS:
-            return self.coerce_number(left) - self.coerce_number(right)
+            self.check_number_operands(expr.operator, left, right)
+            return left - right
         elif token_type == TokenType.PLUS:
-            if self.is_number(left) and self.is_number(right):
-                return self.coerce_number(left) + self.coerce_number(right)
-            elif isinstance(left, str) and isinstance(right, str):
-                return str(left) + str(right)
+            if (self.is_number(left) and self.is_number(right)) \
+                    or (isinstance(left, str) and isinstance(right, str)):
+                return left + right
+
+            raise LoxRuntimeError(expr.operator,
+                                  'Operands must be two strings or two numeric objects.')
         elif token_type == TokenType.SLASH:
-            return self.coerce_number(left) / self.coerce_number(right)
+            self.check_number_operands(expr.operator, left, right)
+            return left / right
         elif token_type == TokenType.STAR:
-            return self.coerce_number(left) * self.coerce_number(right)
+            self.check_number_operands(expr.operator, left, right)
+            return left * right
 
         return None
 
@@ -94,7 +143,8 @@ class Interpreter(expressions.ExprVisitor):
         if expr.operator.type == TokenType.BANG:
             return not self.is_truthy(right)
         elif expr.operator.type == TokenType.MINUS:
-            return -(self.coerce_number(right))
+            self.check_number_operand(expr.operator, right)
+            return -right
 
         return None
 
