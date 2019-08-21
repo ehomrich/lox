@@ -73,6 +73,7 @@ class TokenType(Enum):
     EXTENDS = 'extends'
     SUPER = 'super'
     SELF = 'self'
+    THIS = 'this'
     INTERFACE = 'interface'
     IMPLEMENTS = 'implements'
     FUNCTION = 'function'
@@ -116,13 +117,13 @@ class TokenType(Enum):
 
 _keywords: Tuple[str] = (
     'true', 'false', 'null', 'and', 'or', 'if', 'else', 'function', 'return',
-    'for', 'class', 'super', 'self', 'const', 'let', 'while', 'var', 'print'
+    'for', 'class', 'super', 'this', 'const', 'let', 'while', 'var', 'print'
 )
 
 KEYWORDS: Dict[str, TokenType] = {key: TokenType(key) for key in _keywords}
 
 SINGLE_CHARS: Tuple[str] = (
-    '(', ')', '{', '}', ',', '.', '-', '+', ';', '*', '/',
+    '(', ')', '{', '}', ',', '.', '-', '+', ';', '*',
 )
 
 ONE_OR_MORE_CHARS: Tuple[str] = ('!', '!=', '=', '==', '>', '>=', '<', '<=')

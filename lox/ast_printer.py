@@ -33,8 +33,8 @@ class AstPrinter(expressions.ExprVisitor):
         name = f'logical {expr.operator.lexeme}'
         return self.parenthesize(name, expr.left, expr.right)
 
-    def visit_self_expr(self, expr: expressions.Self) -> str:
-        return 'self'
+    def visit_this_expr(self, expr: expressions.This) -> str:
+        return 'this'
 
     def visit_set_expr(self, expr: expressions.Set) -> str:
         return self.parenthesize('=', expr.obj, expr.name.lexeme, expr.value)

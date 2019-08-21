@@ -100,8 +100,6 @@ class Scanner:
         while self.peek() != '\n' and not self.is_at_end():
             self.advance()
 
-        self.add_token(TokenType.HASH)
-
     def add_token(self, typ: TokenType, literal: Optional[Any] = None) -> None:
         token = Token(typ, self.current_token, literal, self.line)
         self.tokens.append(token)
@@ -128,8 +126,11 @@ class Scanner:
             return
         elif char == '\n':
             self.advance_line()
-        elif char == '#':
-            self.comment()
+        elif char == '/':
+            if self.match('/'):
+                self.comment()
+            else:
+                self.add_token(TokenType.SLASH)
         elif char in STRING_STARTERS:
             self.string(char)
         elif char.isdigit():

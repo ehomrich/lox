@@ -134,7 +134,7 @@ class Interpreter(expressions.ExprVisitor, statements.StmtVisitor):
     def visit_logical_expr(self, expr: expressions.Expr) -> Any:
         pass
 
-    def visit_self_expr(self, expr: expressions.Expr) -> Any:
+    def visit_this_expr(self, expr: expressions.Expr) -> Any:
         pass
 
     def visit_set_expr(self, expr: expressions.Expr) -> Any:

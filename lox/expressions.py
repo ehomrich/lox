@@ -34,15 +34,15 @@ class ExprVisitor(ABC):
         pass
 
     @abstractmethod
-    def visit_self_expr(self, expr: 'Expr'):
-        pass
-
-    @abstractmethod
     def visit_set_expr(self, expr: 'Expr'):
         pass
 
     @abstractmethod
     def visit_super_expr(self, expr: 'Expr'):
+        pass
+
+    @abstractmethod
+    def visit_this_expr(self, expr: 'Expr'):
         pass
 
     @abstractmethod
@@ -124,14 +124,6 @@ class Logical(Expr):
         return visitor.visit_logical_expr(self)
 
 
-class Self(Expr):
-    def __init__(self, keyword: Token) -> None:
-        self.keyword = keyword
-
-    def accept(self, visitor: ExprVisitor) -> None:
-        return visitor.visit_self_expr(self)
-
-
 class Set(Expr):
     def __init__(self, obj: Expr, name: Token, value: Expr) -> None:
         self.obj = obj
@@ -149,6 +141,14 @@ class Super(Expr):
 
     def accept(self, visitor: ExprVisitor) -> None:
         return visitor.visit_super_expr(self)
+
+
+class This(Expr):
+    def __init__(self, keyword: Token) -> None:
+        self.keyword = keyword
+
+    def accept(self, visitor: ExprVisitor) -> None:
+        return visitor.visit_this_expr(self)
 
 
 class Unary(Expr):

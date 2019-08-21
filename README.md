@@ -16,9 +16,8 @@ This implementation is still ongoing, and there is a desire to extend the projec
 At the moment, the implementation follows almost every step and decision in the book, however:
 
 - Not all challenges have been implemented yet.
-- I'll be using `self` instead of `this` and `null` instead of `nil`.
-- Comments start with `#` instead of `/`.
-- I will try to handle both `int` and `float` numbers instead of considering everything as `double`.
+- I'll be using `null` instead of `nil`.
+- I will try to handle both `int` and `float` numbers.
 - The `TokenType` enum has many more tokens and keywords than those described by the book. I recorded all the ideas that came to mind while reading the language planning section.
 
 ## Requirements
